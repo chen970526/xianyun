@@ -6,7 +6,7 @@
         <div
           class="banner-image"
           :style="`
-                background:url(${$axios.defaults.baseURL + item.url}) center center no-repeat;
+                background:url(${$axios.defaults.baseURL+item.url}) center center no-repeat;
                 background-size:contain contain;
                 `"
         ></div>
@@ -47,7 +47,12 @@ export default {
   data() {
     return {
       // 轮播图数据
-      banners: [],
+      banners: [
+        {
+          url:
+            'http://www.dmyzw.com/picture/b8c358776469c150a35d77d775d6c1d6.jpg'
+        }
+      ],
       options: [
         { name: '攻略', placeholder: '搜索城市', pageUrl: '/post?city=' },
         {
