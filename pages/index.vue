@@ -77,10 +77,11 @@ export default {
   },
   methods: {
     handleOption(index) {
-      console.log(123)
+      this.$store.commit('user/setName', index)
+      this.handleSearch()
     },
     handleSearch() {
-      console.log(123)
+      console.log(this.$store.state.user.name)
     }
   }
 }
