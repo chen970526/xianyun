@@ -7,6 +7,13 @@ export const state = {
 export const mutations = {
   setName(state, data) {
     state.userInfo = data
+  },
+  // 清除用户数据
+  cleanUserInfo(state, info) {
+    if (process.browser) {
+      localStorage.removeItem("userInfo");
+    }
+    state.userInfo = {};
   }
 }
 
@@ -14,7 +21,7 @@ export const mutations = {
 // 异步修改state的数据，存放公共的请求函数，并且该函数可能会修改state的数据（不一定要修改）
 export const actions = {
   login(store, data) {
-    this.$axios({
+    return this.$axios({
       url: '/accounts/login',
       method: 'POST',
       data
@@ -24,6 +31,7 @@ export const actions = {
       this.$router.back()
       // 调用user下的mutations的方法
       store.commit('setName', res.data)
+      return true
     })
   }
 }

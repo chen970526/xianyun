@@ -71,7 +71,11 @@ export default {
         // console.log(this.form)
 
         // 调用actions的登陆方法
-        this.$store.dispatch('user/login', this.form)
+        this.$store.dispatch('user/login', this.form).then(res => {
+          if (res) {
+            this.$message.success('登陆成功')
+          }
+        })
       })
     }
   }
