@@ -9,7 +9,7 @@
     <el-row type="flex" justify="space-between">
       <!-- 搜索表单 -->
       <!-- <div>搜索</div> -->
-      <SearchForm></SearchForm>
+      <SearchForm/>
 
       <!-- banner广告 -->
       <div class="sale-banner">
