@@ -9,7 +9,7 @@
     <el-row type="flex" justify="space-between">
       <!-- 搜索表单 -->
       <!-- <div>搜索</div> -->
-      <SearchForm/>
+      <SearchForm />
 
       <!-- banner广告 -->
       <div class="sale-banner">
@@ -39,7 +39,21 @@
     </h2>
 
     <!-- 特价机票 -->
-    <div class="air-sale"></div>
+    <div class="air-sale">
+      <el-row type="flex" class="air-sale-pic" justify="space-between">
+        <el-col :span="6" v-for="(item, index) in sales" :key="index">
+          <nuxt-link
+            :to="`/air/flights?departCity=${item.departCity}&departCode=${item.departCode}&destCity=${item.destCity}&destCode=${item.destCode}&departDate=${item.departDate}`"
+          >
+            <img :src="item.cover" />
+            <el-row class="layer-bar" type="flex" justify="space-between">
+              <span>{{item.departCity}}-{{item.destCity}}</span>
+              <span>￥{{item.price | toFixed}}</span>
+            </el-row>
+          </nuxt-link>
+        </el-col>
+      </el-row>
+    </div>
   </section>
 </template>
 
@@ -48,6 +62,24 @@ import SearchForm from '@/components/air/SearchForm.vue'
 export default {
   components: {
     SearchForm
+  },
+  data() {
+    return {
+      sales: []
+    }
+  },
+  mounted() {
+    this.$axios({
+      url: `/airs/sale`
+    }).then(res => {
+      this.sales = res.data.data
+    })
+  },
+  filters: {
+    // 给价格保留两位小数点
+    toFixed(value) {
+      return Number(value).toFixed(2)
+    }
   }
 }
 </script>
