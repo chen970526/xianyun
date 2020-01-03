@@ -5,7 +5,7 @@
       <div class="flights-content">
         <!-- 过滤条件 -->
 
-        <div></div>
+        <FlightsFilters :data="cacheFlightsData" @setDataList="setDataList" />
 
         <!-- 航班头部布局 -->
         <FlightsListHead />
@@ -40,16 +40,28 @@
 import moment from 'moment'
 import FlightsListHead from '@/components/air/FlightsListHead.vue'
 import FlightsItem from '@/components/air/FlightsItem.vue'
+import FlightsFilters from '@/components/air/FlightsFilters.vue'
 
 export default {
   components: {
     FlightsListHead,
-    FlightsItem
+    FlightsItem,
+    FlightsFilters
   },
   data() {
     return {
       // 航班总数据 { info, flights, total, options }
-      flightsData: {},
+      flightsData: {
+        info: {},
+        options: {},
+        flights: []
+      },
+      // 缓存的变量，当该变量一旦被赋值之后不会被修改
+      cacheFlightsData: {
+        info: {},
+        options: {},
+        flights: []
+      },
       // 当前的页面
       pageIndex: 1,
       // 当然的条数
@@ -71,6 +83,8 @@ export default {
       //   //切割出第一页
       //   this.dataList = this.flightsData.flights.slice(0, 5)
 
+      this.cacheFlightsData = { ...res.data }
+
       //总页数
       this.total = this.flightsData.total
     })
@@ -88,6 +102,12 @@ export default {
     }
   },
   methods: {
+    // 给过滤的组件修改this.flightsData.flights
+    setDataList(arr) {
+      // arr 就是过滤后的符合条件的数据
+      this.flightsData.flights = arr
+      this.total = arr.length
+    },
     // 切换分页条数时候触发
     handleSizeChange(value) {
       console.log(value)

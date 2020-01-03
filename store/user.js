@@ -33,5 +33,31 @@ export const actions = {
       store.commit('setName', res.data)
       return true
     })
-  }
+  }, // 发送手机验证码 
+  sendCaptcha(store, data) {
+    return this.$axios({
+      url: "/captchas",
+      method: 'POST',
+      data: {
+        // 手机号码
+        tel: data
+      }
+    })
+  },
+
+  // 注册的请求
+  // register(store, data) {
+  //   return this.$axios({
+  //     url: "/accounts/register",
+  //     method: 'POST',
+  //     data
+  //   }).then(res => {
+  //     // 登录成功后返回上一个页面
+  //     this.$router.back();
+  //     // 调用user下的mutations的方法
+  //     store.commit("setUserInfo", res.data);
+
+  //     return true;
+  //   })
+  // }
 }
