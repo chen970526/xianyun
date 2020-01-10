@@ -3,11 +3,26 @@
     <el-form class="go">
       <el-container>
         <el-aside>
-          <div class="menus">
-            <div class="a">热门城市</div>
-            <div class="a">推荐城市</div>
-            <div class="a">奔向海岛</div>
-            <div class="a">主题推荐</div>
+          <div class="menus-body" @mouseleave="mouseleave()">
+            <div class="menus">
+              <div
+                class="a"
+                v-for="(item1,index) in cities"
+                :key="index"
+                @mouseenter="mouseenter(index)"
+              >{{item1.type}}</div>
+            </div>
+            <div class="sub-menus" v-show="sub">
+              <ul>
+                <li v-for="(item2,index) in children" :key="index">
+                  <a href="#">
+                    <i>{{index+1}}</i>
+                    <strong>{{item2.city}}</strong>
+                    <span>{{item2.desc}}</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </el-aside>
         <el-container>
@@ -28,56 +43,17 @@
               <h4>推荐攻略</h4>
               <el-button type="primary" icon="el-icon-edit">写游记</el-button>
             </div>
-            <div class="post-item">
-              <h4>
-                <a href="#">塞班贵？一定是你的打开方式不对！6000块玩转塞班</a>
-              </h4>
-              <p>
-                <a
-                  href="#"
-                >大家对塞班岛总存在着这样的误解，知道它是美属地盘，就理所当然地觉得这里的花费一定很高，花费高有高的玩法，那如果只有6000块的预算呢？要怎么玩？关于旅行这件事，我们要让钱花得更有道理，收下这份攻略，带你6000块花式玩转塞班。图：塞班岛。 by第5季旅游一、怎样用6000块玩转塞班？大多数出境游客人不做预算或最</a>
-              </p>
-              <div class="card-images">
-                <a href="#">
-                  <img
-                    src="https://n3-q.mafengwo.net/s10/M00/E8/E4/wKgBZ1octoCABhgLAAafahORRLs91.jpeg?imageView2%2F2%2Fw%2F1360%2Fq%2F90"
-                    alt
-                  />
-                </a>
-                <a href="#">
-                  <img
-                    src="https://n3-q.mafengwo.net/s10/M00/E8/E4/wKgBZ1octoCABhgLAAafahORRLs91.jpeg?imageView2%2F2%2Fw%2F1360%2Fq%2F90"
-                    alt
-                  />
-                </a>
-                <a href="#">
-                  <img
-                    src="https://n3-q.mafengwo.net/s10/M00/E8/E4/wKgBZ1octoCABhgLAAafahORRLs91.jpeg?imageView2%2F2%2Fw%2F1360%2Fq%2F90"
-                    alt
-                  />
-                </a>
-              </div>
-              <div class="post-info">
-                <div class="post-info-left">
-                  <span>
-                    <i class="el-icon-location-outline"></i>
-                    北京市
-                  </span>
-                  <div class="post-user">
-                    by
-                    <a href="#">
-                      <img src="http://157.122.54.189:9095/assets/images/avatar.jpg" alt />
-                    </a>
-                    <a href="#">地球发动机</a>
-                  </div>
-                  <span>
-                    <i class="el-icon-view"></i>
-                    13009
-                  </span>
-                </div>
-                <span class="post-info-right">74 赞</span>
-              </div>
-            </div>
+
+            <List v-for="(item,index) in dataList" :key="index" :post="item" />
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="pageIndex"
+              :page-sizes="[3, 5, 10, 15]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+            ></el-pagination>
           </el-main>
         </el-container>
       </el-container>
@@ -87,24 +63,84 @@
 
 
 <script>
+import List from '@/components/post/List.vue'
 export default {
+  components: {
+    List
+  },
   data() {
     return {
-      search: ''
+      sub: false,
+      search: '',
+      children: '',
+      cities: [],
+      postdata: [],
+      pageSize: 3,
+      total: 5,
+      pageIndex: 1
     }
   },
   mounted() {
+    //城市菜单列表
     this.$axios({
-      url: '/posts/recommend'
+      url: '/posts/cities'
     }).then(res => {
-      console.log(res)
+      // console.log(res)
+      this.cities = res.data.data
+      // console.log(this.cities)
     })
+    //推荐文章
+    this.$axios({
+      url: '/posts'
+    }).then(res => {
+      // console.log(res)
+      this.postdata = res.data.data
+      console.log(this.postdata)
+
+      //设置分页的总数
+      this.total = res.data.total
+    })
+  },
+  computed: {
+    // 计算属性监听函数内部引用实例的属性变化，一旦发生了变化，该函数会重新计算，并且返回新的值
+    dataList() {
+      // 请求如果还没完成，返回空数组
+      if (!this.postdata) return []
+      // 计算分页的数据
+      return this.postdata.slice(
+        (this.pageIndex - 1) * this.pageSize,
+        this.pageIndex * this.pageSize
+      )
+    }
+  },
+  methods: {
+    //鼠标移入
+    mouseenter(index) {
+      // console.log(123)
+      this.sub = true
+      this.children = this.cities[index].children
+    },
+    //鼠标移出
+    mouseleave() {
+      // console.log(456)
+      this.sub = !this.sub
+    },
+    //分页
+    handleSizeChange(value) {
+      // console.log(`每页 ${value} 条`)
+      this.pageSize = value
+    },
+    handleCurrentChange(value) {
+      // console.log(`当前页: ${value}`)
+
+      this.pageIndex = value
+    }
   }
 }
 </script>
 
 
-<style lang='less'>
+<style scoped lang='less'>
 .go {
   width: 1000px;
   margin: 0 auto;
@@ -166,111 +202,70 @@ export default {
       left: 0;
     }
   }
-  .post-item {
-    width: 100%;
-    padding: 20px 0;
-    border-bottom: 1px solid #eee;
-    h4 {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      margin-bottom: 15px;
-      font-weight: 400;
-      font-size: 18px;
-    }
-    p {
-      margin-bottom: 15px;
-      line-height: 1.5;
-      font-size: 14px;
-      height: 63px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      a {
-        color: #666;
-      }
-    }
-    .card-images {
-      margin: 15px 0;
-      align-items: center;
-      justify-content: space-between;
-      display: flex;
-      box-sizing: border-box;
-      a {
-        img {
-          width: 220px;
-          height: 150px;
+}
+.el-container {
+  position: relative;
+  .el-aside {
+    box-shadow: 0 0 1px #f5f5f5;
+    z-index: 2;
+    .menus-body {
+      .menus {
+        border: 1px solid #ddd;
+        .a {
+          line-height: 40px;
+          border-bottom: 1px solid #ddd;
+          border-right: 1px solid #ddd;
+          padding: 0 20px;
+          font-size: 14px;
+          position: relative;
+          z-index: 2;
+        }
+        :after {
           display: block;
-          -o-object-fit: cover;
-          object-fit: cover;
+          content: '';
+          width: 10px;
+          height: 10px;
+          border-right: 1px solid #999;
+          border-top: 1px solid #999;
+          -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+          position: absolute;
+          right: 20px;
+          top: 15px;
         }
       }
-    }
-    .post-info {
-      justify-content: space-between;
-      display: flex;
-      box-sizing: border-box;
-      .post-info-left {
-        align-items: center;
-        display: flex;
-        font-size: 12px;
-        color: #999;
-        span {
-          margin-right: 10px;
-        }
-        .post-user {
-          display: flex;
-          align-items: center;
-          margin-right: 10px;
-          box-sizing: border-box;
+      .sub-menus {
+        position: absolute;
+        left: 300px;
+        top: 0;
+        width: 350px;
+        padding: 10px 20px;
+        box-sizing: border-box;
+        background: #fff;
+        border: 1px solid #ddd;
+        li {
+          font-size: 14px;
+          line-height: 1.5;
+          height: 36px;
+          width: 308px;
           a {
-            color: orange;
-
-            img {
-              display: block;
-              width: 16px;
-              height: 16px;
-              border-radius: 100px;
-              margin: 5px;
+            vertical-align: middle;
+            i {
+              color: orange;
+              font-size: 24px;
+              font-style: italic;
+            }
+            strong {
+              margin: 0 10px;
+              color: orange;
+              font-weight: 400;
+            }
+            span {
+              color: #999;
             }
           }
         }
       }
-      .post-info-right {
-        color: orange;
-      }
-    }
-  }
-}
-.el-aside {
-  border-right: none;
-  border-bottom: none;
-  box-shadow: 0 0 1px #f5f5f5;
-  z-index: 2;
-  .menus {
-    border: 1px solid #ddd;
-    .a {
-      line-height: 40px;
-      border-bottom: 1px solid #ddd;
-      border-right: 1px solid #ddd;
-      padding: 0 20px;
-      font-size: 14px;
-      position: relative;
-      z-index: 2;
-    }
-    :after {
-      display: block;
-      content: '';
-      width: 10px;
-      height: 10px;
-      border-right: 1px solid #999;
-      border-top: 1px solid #999;
-      -webkit-transform: rotate(45deg);
-      transform: rotate(45deg);
-      position: absolute;
-      right: 20px;
-      top: 15px;
     }
   }
 }
