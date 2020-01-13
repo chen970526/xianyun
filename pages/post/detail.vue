@@ -82,11 +82,13 @@
         </a>
       </div>
     </div>
+    <!-- <CommentItem :comment="comment"></CommentItem> -->
   </div>
 </template>
 
 <script>
 import { dataFormat, datatime } from '@/store/myfilters.js'
+import CommentItem from '@/components/post/CommentItem.vue'
 export default {
   data() {
     return {
@@ -96,9 +98,12 @@ export default {
       textarea: '',
       //图片上传参数
       dialogImageUrl: '',
-      dialogVisible: false
+      dialogVisible: false,
+      comment: []
     }
   },
+  components: { CommentItem },
+
   filters: {
     dataFormat,
     datatime
@@ -122,6 +127,16 @@ export default {
     }).then(res => {
       console.log(res)
       this.postdata = res.data.data
+    })
+    this.$axios({
+      url: '/posts/comments',
+      data: {
+        id: this.id
+      }
+    }).then(res => {
+      // console.log(res)
+      this.comment = res.data.data
+      console.log(this.comment)
     })
   },
   methods: {

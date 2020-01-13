@@ -41,7 +41,11 @@
           <el-main>
             <div class="post-title">
               <h4>推荐攻略</h4>
-              <el-button type="primary" icon="el-icon-edit">写游记</el-button>
+              <el-button
+                type="primary"
+                icon="el-icon-edit"
+                @click="$router.push({path: `post/create`})"
+              >写游记</el-button>
             </div>
 
             <List v-for="(item,index) in dataList" :key="index" :post="item" />
